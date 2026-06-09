@@ -30,11 +30,11 @@
     #resumen .resumen-map-card .map{height:auto;min-height:455px;flex:1}
     #resumen .summaryTableWrap{overflow:auto}
     #resumen .summaryTable{width:100%;border-collapse:collapse;font-size:12px;text-align:center}
-    #resumen .summaryTable th{background:#c46a18;color:#fff;padding:8px 7px;border:1px solid #e5a35f;font-weight:800;text-transform:uppercase}
-    #resumen .summaryTable td{padding:8px 7px;border:1px solid #f0c28f;font-weight:700}
-    #resumen .summaryTable tbody tr:nth-child(odd){background:#fffaf4}
-    #resumen .summaryTable tbody tr:nth-child(even){background:#fff1df}
-    #resumen .summaryTable tfoot td{background:#f7d8b5;font-weight:900}
+    #resumen .summaryTable th{background:#2f75b5!important;color:#fff;padding:8px 7px;border:1px solid #9dc3e6;font-weight:800;text-transform:uppercase}
+    #resumen .summaryTable td{padding:8px 7px;border:1px solid #b7cce3;font-weight:700}
+    #resumen .summaryTable tbody tr:nth-child(odd){background:#ffffff!important}
+    #resumen .summaryTable tbody tr:nth-child(even){background:#eef4fb!important}
+    #resumen .summaryTable tfoot td{background:#d9e6f2!important;font-weight:900}
     #resumen .summaryTable .left{text-align:left}
     #resumen .summaryTableTitle{font-weight:800;text-align:center;margin-bottom:8px;color:#111827}
     @media(max-width:1300px){#resumen .resumen-layout,#resumen .resumen-left{grid-template-columns:1fr}#resumen .resumen-map-card .map{min-height:380px}}
@@ -49,6 +49,12 @@
     @media(max-width:1180px){.top{grid-template-columns:1fr}.title{min-width:0}.title h1{white-space:normal}.filters{justify-content:flex-start}}
 
     @media(max-width:1300px){.kpis{grid-template-columns:repeat(3,1fr)}.row-main,.row-bottom{grid-template-columns:1fr}.summary-map-wrap{grid-template-columns:1fr}.summary-table{font-size:12px}}
+
+    /* Corrección puntual: tabla resumen en azul institucional */
+    #resumen table.summaryTable th{background:#2f75b5!important;color:#ffffff!important;border-color:#9dc3e6!important}
+    #resumen table.summaryTable tbody tr:nth-child(odd){background:#ffffff!important}
+    #resumen table.summaryTable tbody tr:nth-child(even){background:#eef4fb!important}
+    #resumen table.summaryTable tfoot td{background:#d9e6f2!important}
   </style>
 </head>
 <body>
@@ -163,7 +169,7 @@ function renderResumenTipoTable(d){
 function updateAll(){destroy();let d=filtered(), total=sum(d), coord=d.filter(validCoord), coordProjects=projectPoints(d), val=d.reduce((a,r)=>a+r.precio*r.viv,0);$('updateTxt').innerText=`Última actualización: ${new Date().toLocaleString('es-EC')} · ${fmt(d.length)} registros filtrados · ${fmt(unique(d,projectKey))} proyectos`;
   let visRows=d.filter(r=>r.tipo==='VIS'), vipRows=d.filter(r=>r.tipo==='VIP'), visTotal=sum(visRows), vipTotal=sum(vipRows);
   $('kpiMain').innerHTML=kpiHTML([['Proyectos Registrados',fmt(unique(d,projectKey)),'NRO DE REGISTRO únicos','mi-blue','folder-kanban'],['Viviendas Registradas',fmt(total),'Suma de NRO DE VIVIENDAS','mi-green','home'],['VIS Registradas',fmt(visTotal),pct(visTotal,total)+' del total','mi-gold','tag'],['VIP Registradas',fmt(vipTotal),pct(vipTotal,total)+' del total','mi-purple','badge'],['Monto Estimado',moneyMillions(val),'Millones USD: precio x viviendas','mi-teal','circle-dollar-sign'],['Proyectos con Coordenada',fmt(coordProjects.length),pct(coordProjects.length,unique(d,projectKey))+' de proyectos','mi-red','map-pin']]);
-  let tipo=group(d,'tipo'), pr=projectRows(d), anio=(()=>{let m={};pr.forEach(p=>{let y=dateYear(p.fecha)||'Sin fecha';m[y]=(m[y]||0)+1;});return Object.entries(m).sort((a,b)=>String(a[0]).localeCompare(String(b[0])));})();
+  let tipo=group(d,'tipo'), pr=projectRows(d), maxTimelineYear=2026, anio=(()=>{let m={};pr.forEach(p=>{let y=dateYear(p.fecha); if(!y || Number(y)>maxTimelineYear) return; m[y]=(m[y]||0)+1;});return Object.entries(m).sort((a,b)=>Number(a[0])-Number(b[0]));})();
   chart('chTipo','doughnut',tipo.map(x=>x[0]),[{data:tipo.map(x=>x[1]),backgroundColor:TYPE_COLORS}]);
   chart('chAnio','line',anio.map(x=>x[0]),[{label:'Proyectos',data:anio.map(x=>x[1]),borderColor:COLORS.blue,backgroundColor:COLORS.blue,tension:.25}]);
   renderSummaryMap(d);
