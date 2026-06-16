@@ -179,7 +179,6 @@
         </div>
         <select id="fCan"><option value="">Todos los cantones</option></select>
         <select id="fTipo"><option value="">VIS y VIP</option><option>VIS</option><option>VIP</option></select>
-        <select id="fEstado"><option value="">Todos los estados</option></select>
         <select id="fGob"><option value="">Todos los gobiernos</option></select>
         <label class="dateField"><span>Fecha desde:</span><input id="fDesde" type="date" title="Periodo desde"></label>
         <label class="dateField"><span>Fecha hasta:</span><input id="fHasta" type="date" title="Periodo hasta"></label>
@@ -196,7 +195,7 @@ const GEOJSON = {"type": "FeatureCollection", "name": "provincias_ecuador_ultral
 const SHEET_ID = '107ZMNZpjswuc-SBBeXvcOxGfr5bxj3c9Rk3B8zT8wN0';
 const CSV_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=Hoja%201`;
 const MENU = [
-  ['resumen','home','Resumen Nacional'],['territorio','map-pin','Territorio'],['visvip','building-2','VIS vs VIP'],['obra','hard-hat','Estado y Segmentación'],['economico','circle-dollar-sign','Análisis Económico'],['gobierno','landmark','Gobierno Actual vs Anteriores'],['calidad','check-circle-2','Calidad de Información']
+  ['resumen','home','Resumen Nacional'],['territorio','map-pin','Territorio'],['visvip','building-2','VIS vs VIP'],['economico','circle-dollar-sign','Análisis Económico'],['gobierno','landmark','Gobierno Actual vs Anteriores'],['calidad','check-circle-2','Calidad de Información']
 ];
 let raw=[], data=[], charts={}, mapResumen=null, mapTerr=null, mapObra=null, mapCal=null, geoLayer=null, markersLayer=null, active='resumen', filtersBound=false, firstLoad=true;
 const $=id=>document.getElementById(id);
@@ -233,7 +232,7 @@ function parseRow(r){
   return {...r, tipo:String(r['TIPO DE VIVIENDA']||'SIN TIPO').trim(), proyecto:String(r['NOMBRE DEL PROYECTO']||'SIN NOMBRE').trim(), prov:String(r['PROVINCIA']||'SIN PROVINCIA').trim(), can:String(r['CANTON']||'SIN CANTON').trim(), seg:String(r['SEGMENTO DESTINADO']||'SIN SEGMENTO').trim(), area:cleanNum(r['AREA VIVIENDA']), viv:cleanNum(r['NRO DE VIVIENDAS'])||0, precio:cleanNum(r['PRECIO DE VENTA']), registro:String(r['NRO DE REGISTRO ']||r['NRO DE REGISTRO']||'').trim(), fecha:r['FECHA DE REGISTRO'], gobierno:String(r['PERIODO DE GOBIERNO']||'SIN DATO').trim(), estado:String(r['ESTADO DE OBRA']||'SIN ESTADO').trim(), lon:cleanNum(r['X']), lat:cleanNum(r['Y'])};
 }
 function rowsToObjects(rows){let seen={};let headers=(rows[0]||[]).map(h=>{h=String(h||'').trim();seen[h]=(seen[h]||0)+1;return seen[h]===1?h:`${h}_${seen[h]}`;});return rows.slice(1).filter(r=>r.some(v=>String(v||'').trim())).map(r=>Object.fromEntries(headers.map((h,i)=>[h,r[i]??''])));}
-function filtered(){let provs=provinceSet(),desde=$('fDesde')?.value?new Date($('fDesde').value+'T00:00:00').getTime():NaN,hasta=$('fHasta')?.value?new Date($('fHasta').value+'T23:59:59').getTime():NaN;return data.filter(r=>{let t=dateTime(r.fecha);return (!provs||provs.has(r.prov))&&(!$('fCan').value||r.can===$('fCan').value)&&(!$('fTipo').value||r.tipo===$('fTipo').value)&&(!$('fEstado').value||r.estado===$('fEstado').value)&&(!$('fGob')?.value||r.gobierno===$('fGob').value)&&(isNaN(desde)||(!isNaN(t)&&t>=desde))&&(isNaN(hasta)||(!isNaN(t)&&t<=hasta));});}
+function filtered(){let provs=provinceSet(),desde=$('fDesde')?.value?new Date($('fDesde').value+'T00:00:00').getTime():NaN,hasta=$('fHasta')?.value?new Date($('fHasta').value+'T23:59:59').getTime():NaN;return data.filter(r=>{let t=dateTime(r.fecha);return (!provs||provs.has(r.prov))&&(!$('fCan').value||r.can===$('fCan').value)&&(!$('fTipo').value||r.tipo===$('fTipo').value)&&(!$('fGob')?.value||r.gobierno===$('fGob').value)&&(isNaN(desde)||(!isNaN(t)&&t>=desde))&&(isNaN(hasta)||(!isNaN(t)&&t<=hasta));});}
 function sum(arr,k='viv'){return arr.reduce((a,r)=>a+(+r[k]||0),0)}
 function unique(arr,k){return new Set(arr.map(r=>typeof k==='function'?k(r):r[k]).filter(Boolean)).size}
 function group(arr,k,val='viv'){let m={};arr.forEach(r=>{let key=typeof k==='function'?k(r):r[k];m[key]=(m[key]||0)+(+r[val]||0)});return Object.entries(m).sort((a,b)=>b[1]-a[1]);}
@@ -269,19 +268,18 @@ function renderShell(){
   <section id="resumen" class="section active"><div class="grid kpis" id="kpiMain"></div><div class="grid resumen-layout"><div class="resumen-left"><div class="card resumen-table-card"><div class="summaryTableTitle">Registro de viviendas de interés social y viviendas de interés público:</div><div id="tablaResumenTipo" class="summaryTableWrap"></div></div><div class="card"><h3>Distribución VIS vs VIP</h3><div class="chartBox"><canvas id="chTipo"></canvas></div></div><div class="card"><h3>Indicadores Económicos</h3><div class="grid kpis compact-row" id="kpiEcoMini"></div><div class="note">Monto estimado = precio de venta x viviendas registradas.</div></div></div><div class="card resumen-map-card"><h3>Mapa de calor de proyectos por provincia</h3><div class="summary-map-wrap"><div id="mapResumen" class="map"></div><div class="heat-legend"><span>Menor</span><div class="heat-ramp"></div><span>Mayor</span></div></div></div></div><div class="card wide"><h3>Registro de proyectos por año</h3><div class="chartBox"><canvas id="chAnio"></canvas></div></div></section>
   <section id="territorio" class="section"><div class="grid territory-layout territory-layout-registros"><div class="card territory-map-card"><div class="miniHeader"><h3>Mapa de proyectos georreferenciados</h3><span>1 punto por proyecto con coordenada válida</span></div><div id="mapTerr" class="map"></div></div><div class="card province-register-card"><h3>Registros por provincia</h3><div id="regProvT"></div></div></div></section>
   <section id="visvip" class="section"><div class="grid kpis" id="kpiVisVip"></div><div class="grid row2"><div class="card"><h3>Viviendas por Provincia: VIS vs VIP</h3><div class="chartBox"><canvas id="chVisVipProv"></canvas></div></div><div class="card"><h3>Precio Promedio por Tipo</h3><div class="chartBox"><canvas id="chPrecioTipo"></canvas></div></div></div><div class="grid row2"><div class="card"><h3>Área Promedio por Tipo</h3><div class="chartBox sm"><canvas id="chAreaTipo"></canvas></div></div><div class="card"><h3>Participación VIS/VIP</h3><div class="chartBox sm"><canvas id="chTipo2"></canvas></div></div></div></section>
-  <section id="obra" class="section"><div class="grid kpis" id="kpiObra"></div><div class="grid combined-grid"><div class="card"><h3>Viviendas por Estado</h3><div class="chartBox"><canvas id="chObraDonut"></canvas></div></div><div class="card"><h3>Estado de Obra por Provincia</h3><div class="chartBox"><canvas id="chObraProv"></canvas></div></div><div class="card"><h3>Provincias con Viviendas No Construidas</h3><div id="noConstruidas"></div></div></div><div class="grid combined-grid"><div class="card"><h3>Distribución por Segmento</h3><div class="chartBox sm"><canvas id="chSeg"></canvas></div></div><div class="card"><h3>Segmentos por Provincia</h3><div class="chartBox sm"><canvas id="chSegProv"></canvas></div></div><div class="card"><h3>Precio Promedio por Segmento</h3><div class="chartBox sm"><canvas id="chPrecioSeg"></canvas></div></div></div></section>
   <section id="economico" class="section"><div class="grid kpis" id="kpiEcon"></div><div class="grid row2"><div class="card"><h3>Distribución de Precios</h3><div class="chartBox"><canvas id="chHistPrecio"></canvas></div></div><div class="card"><h3>Precio Promedio por Provincia</h3><div class="chartBox"><canvas id="chPrecioProv"></canvas></div></div></div><div class="grid row2"><div class="card"><h3>Relación Área vs Precio</h3><div class="chartBox"><canvas id="chScatter"></canvas></div></div><div class="card"><h3>Monto Estimado por Provincia</h3><div id="valorProv"></div><div class="note">Precio de venta multiplicado por viviendas registradas.</div></div></div></section>
   <section id="gobierno" class="section"><div class="grid kpis gov-grid" id="kpiGob"></div><div class="grid row2"><div class="card"><h3>Comparación de Viviendas por Gobierno</h3><div class="chartBox"><canvas id="chGob"></canvas></div></div><div class="card"><h3>Evolución de Viviendas por Año y Gobierno</h3><div class="chartBox"><canvas id="chGobAnio"></canvas></div></div></div></section>
   <section id="calidad" class="section"><div class="grid kpis" id="kpiCal"></div><div class="grid row2 quality-row"><div class="card"><h3>Proyectos con Coordenada Válida</h3><div id="mapCal" class="map"></div></div><div class="card"><h3>Proyectos pendientes por Provincia</h3><div id="pendientesProv"></div></div></div></section>`;
   if(window.lucide) lucide.createIcons();
 }
-function fillFilters(){let keep={prov:selectedProvinces(),can:$('fCan').value,tipo:$('fTipo').value,estado:$('fEstado').value,gob:$('fGob')?.value||'',desde:$('fDesde')?.value||'',hasta:$('fHasta')?.value||''};let prov=[...new Set(data.map(r=>r.prov))].sort();$('fProvMenu').innerHTML='<div class="multiActions"><button type="button" onclick="setAllProvinces(true)">Seleccionar todas</button></div>'+prov.map(x=>`<label><input type="checkbox" value="${x}" ${keep.prov.includes(x)?'checked':''}><span>${x}</span></label>`).join('');updateProvButton();let est=[...new Set(data.map(r=>r.estado))].sort();$('fEstado').innerHTML='<option value="">Todos los estados</option>'+est.map(x=>`<option>${x}</option>`).join('');if(est.includes(keep.estado))$('fEstado').value=keep.estado;let gobs=[...new Set(data.map(r=>r.gobierno).filter(Boolean))].sort();$('fGob').innerHTML='<option value="">Todos los gobiernos</option>'+gobs.map(x=>`<option>${x}</option>`).join('');if(gobs.includes(keep.gob))$('fGob').value=keep.gob;$('fTipo').value=keep.tipo;if($('fDesde'))$('fDesde').value=keep.desde;if($('fHasta'))$('fHasta').value=keep.hasta;updateCantones();if(keep.can&&[...$('fCan').options].some(o=>o.value===keep.can))$('fCan').value=keep.can;if(!filtersBound){filtersBound=true;$('fProvMenu')?.addEventListener('change',()=>{updateProvButton();updateCantones();updateAll();});['fCan','fTipo','fEstado','fGob','fDesde','fHasta'].forEach(id=>$(id)?.addEventListener('change',()=>{updateAll();}));}}
+function fillFilters(){let keep={prov:selectedProvinces(),can:$('fCan').value,tipo:$('fTipo').value,gob:$('fGob')?.value||'',desde:$('fDesde')?.value||'',hasta:$('fHasta')?.value||''};let prov=[...new Set(data.map(r=>r.prov))].sort();$('fProvMenu').innerHTML='<div class="multiActions"><button type="button" onclick="setAllProvinces(true)">Seleccionar todas</button></div>'+prov.map(x=>`<label><input type="checkbox" value="${x}" ${keep.prov.includes(x)?'checked':''}><span>${x}</span></label>`).join('');updateProvButton();let gobs=[...new Set(data.map(r=>r.gobierno).filter(Boolean))].sort();$('fGob').innerHTML='<option value="">Todos los gobiernos</option>'+gobs.map(x=>`<option>${x}</option>`).join('');if(gobs.includes(keep.gob))$('fGob').value=keep.gob;$('fTipo').value=keep.tipo;if($('fDesde'))$('fDesde').value=keep.desde;if($('fHasta'))$('fHasta').value=keep.hasta;updateCantones();if(keep.can&&[...$('fCan').options].some(o=>o.value===keep.can))$('fCan').value=keep.can;if(!filtersBound){filtersBound=true;$('fProvMenu')?.addEventListener('change',()=>{updateProvButton();updateCantones();updateAll();});['fCan','fTipo','fGob','fDesde','fHasta'].forEach(id=>$(id)?.addEventListener('change',()=>{updateAll();}));}}
 function updateCantones(){let provs=provinceSet();let cans=[...new Set(data.filter(r=>!provs||provs.has(r.prov)).map(r=>r.can))].sort();let old=$('fCan').value;$('fCan').innerHTML='<option value="">Todos los cantones</option>'+cans.map(x=>`<option>${x}</option>`).join(''); if(cans.includes(old))$('fCan').value=old;}
-function clearFilters(){document.querySelectorAll('#fProvMenu input[type="checkbox"]').forEach(i=>i.checked=false);['fCan','fTipo','fEstado','fGob','fDesde','fHasta'].forEach(id=>{if($(id))$(id).value=''});updateProvButton();updateCantones();updateAll();showSec(active);}
+function clearFilters(){document.querySelectorAll('#fProvMenu input[type="checkbox"]').forEach(i=>i.checked=false);['fCan','fTipo','fGob','fDesde','fHasta'].forEach(id=>{if($(id))$(id).value=''});updateProvButton();updateCantones();updateAll();showSec(active);}
 
 function kpiHTML(items){return items.map(k=>`<div class="kpi">${k[3]?`<div class="metric-icon ${k[3]}"><i data-lucide="${k[4]||'circle'}"></i></div>`:''}<div class="label">${k[0]}</div><div class="num">${k[1]}</div><div class="sub">${k[2]||''}</div></div>`).join('')}
 function showSec(s){active=s;closeMobileFilters();document.querySelectorAll('.section').forEach(e=>e.classList.remove('active'));$(s).classList.add('active');document.querySelectorAll('.nav button').forEach(b=>b.classList.toggle('active',b.dataset.sec===s));$('sectionTitle').innerText=MENU.find(m=>m[0]===s)[2];setTimeout(()=>{Object.values(charts).forEach(c=>{try{c.resize()}catch(e){}});refitVisibleMaps();},180)}
-function clearFilters(){document.querySelectorAll('#fProvMenu input[type="checkbox"]').forEach(i=>i.checked=false);['fCan','fTipo','fEstado','fGob','fDesde','fHasta'].forEach(id=>{if($(id))$(id).value=''});updateProvButton();updateCantones();updateAll();showSec(active);}
+function clearFilters(){document.querySelectorAll('#fProvMenu input[type="checkbox"]').forEach(i=>i.checked=false);['fCan','fTipo','fGob','fDesde','fHasta'].forEach(id=>{if($(id))$(id).value=''});updateProvButton();updateCantones();updateAll();showSec(active);}
 
 function renderResumenTipoTable(d){
   const rows=['VIS','VIP'].map(tipo=>{let a=d.filter(r=>r.tipo===tipo);return {tipo,proyectos:unique(a,projectKey),viv:sum(a),precio:a.reduce((x,r)=>x+r.precio*r.viv,0),area:a.reduce((x,r)=>x+r.area*r.viv,0)}});
@@ -302,11 +300,9 @@ function updateAll(){destroy();let d=filtered(), total=sum(d), coord=d.filter(va
   [
     ()=>renderTerritorio(d,coordProjects),
     ()=>renderVisVip(d,total),
-    ()=>renderObra(d,total),
     ()=>renderEconomico(d),
     ()=>renderGobierno(d,total),
-    ()=>renderCalidad(d,coord,coordProjects),
-    ()=>renderMercado(d)
+    ()=>renderCalidad(d,coord,coordProjects)
   ].forEach(fn=>{try{fn();}catch(e){console.error('Error al renderizar bloque',e);}});
 }
 function heatColor(v,max){let t=max?Math.max(0,Math.min(1,v/max)):0;return t>.78?'#9a4310':t>.58?'#dc7620':t>.38?'#f6a94f':t>.18?'#ffd099':'#fff0d9';}
@@ -362,7 +358,7 @@ function pdfBoldTotalRows(data){if(data.section!=='body')return;let label=Array.
 function downloadPdfReport(){
   let jsPDF=window.jspdf?.jsPDF;
   if(!jsPDF){alert('No se pudo cargar el generador PDF. Intenta nuevamente cuando termine de cargar la página.');return;}
-  let d=filtered(), metrics=reportMetrics(d), gobierno=filterLabel('fGob','Todos los gobiernos'), provincia=provinceLabel(), tipo=filterLabel('fTipo','VIS y VIP'), estado=filterLabel('fEstado','Todos los estados'), canton=filterLabel('fCan','Todos los cantones'), fecha=reportDateLabel();
+  let d=filtered(), metrics=reportMetrics(d), gobierno=filterLabel('fGob','Todos los gobiernos'), provincia=provinceLabel(), tipo=filterLabel('fTipo','VIS y VIP'), canton=filterLabel('fCan','Todos los cantones'), fecha=reportDateLabel();
     let doc=new jsPDF({orientation:'portrait',unit:'pt',format:'letter'}), pageW=doc.internal.pageSize.getWidth(), pageH=doc.internal.pageSize.getHeight();
     if(typeof doc.autoTable!=='function'){alert('No se pudo cargar la librería de tablas PDF. Intenta nuevamente cuando termine de cargar la página.');return;}
   let header='data:image/jpeg;base64,'+REPORT_HEADER_JPG, footer='data:image/jpeg;base64,'+REPORT_FOOTER_JPG;
@@ -374,7 +370,7 @@ function downloadPdfReport(){
   doc.setFont('helvetica','bold');doc.setFontSize(11);
   doc.text(['REPORTE DE PROYECTOS DE VIVIENDA DE INTERÉS SOCIAL Y VIVIENDA DE INTERÉS PÚBLICO','CALIFICADOS – PROGRAMA MITI – MITI'],pageW/2,130,{align:'center'});
   doc.setFont('helvetica','normal');doc.setFontSize(9);
-  let meta=[`Periodo reportado:`,`Periodo de Gobierno: ${gobierno}`,`Fecha filtrada: ${fecha}`,`Provincia: ${provincia}`,`Cantón: ${canton}`,`Segmento: ${tipo}`,`Estado: ${estado}`,`Proyectos calificados: ${fmt(metrics.proyectos)}`,`Viviendas registradas: ${fmt(metrics.viv)}`];
+  let meta=[`Periodo reportado:`,`Periodo de Gobierno: ${gobierno}`,`Fecha filtrada: ${fecha}`,`Provincia: ${provincia}`,`Cantón: ${canton}`,`Segmento: ${tipo}`,`Proyectos calificados: ${fmt(metrics.proyectos)}`,`Viviendas registradas: ${fmt(metrics.viv)}`];
   doc.text(meta,34,176);
   let y=176+meta.length*11+18;
   doc.setFont('helvetica','bold');doc.text('Registro de viviendas de interés social y viviendas de interés público:',34,y);y+=8;
@@ -390,7 +386,6 @@ function downloadWordReport(){
   let gobierno=filterLabel('fGob','Todos los gobiernos');
   let provincia=provinceLabel();
   let tipo=filterLabel('fTipo','VIS y VIP');
-  let estado=filterLabel('fEstado','Todos los estados');
   let canton=filterLabel('fCan','Todos los cantones');
   let fecha=reportDateLabel();
   let encabezado='data:image/jpeg;base64,'+REPORT_HEADER_JPG;
@@ -418,7 +413,6 @@ function downloadWordReport(){
       Provincia: ${reportEscape(provincia)}<br>
       Cantón: ${reportEscape(canton)}<br>
       Segmento: ${reportEscape(tipo)}<br>
-      Estado: ${reportEscape(estado)}<br>
       Proyectos calificados: ${fmt(metrics.proyectos)}<br>
       Viviendas registradas: ${fmt(metrics.viv)}
     </div>
