@@ -3,6 +3,10 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#082b5f" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <title>Registro de Vivienda VIS y VIP</title>
   <link rel="preconnect" href="https://cdn.jsdelivr.net">
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
@@ -69,6 +73,51 @@
     #resumen table.summaryTable tbody tr:nth-child(odd){background:#ffffff!important}
     #resumen table.summaryTable tbody tr:nth-child(even){background:#eef4fb!important}
     #resumen table.summaryTable tfoot td{background:#d9e6f2!important}
+    @media(max-width:760px){
+      html,body{width:100%;max-width:100%;overflow-x:hidden;background:#f2f5f9}
+      body{font-size:13px;-webkit-text-size-adjust:100%}
+      .app{display:block;min-height:100svh;background:#f2f5f9}
+      .main{width:100%;min-width:0}
+      .top{position:sticky;top:0;z-index:9000;display:block;padding:10px 12px 8px;background:#082b5f;box-shadow:0 5px 18px #082b5f24}
+      .title{min-width:0;margin-bottom:8px}
+      .title h1{font-size:18px;line-height:1.15;margin:0 0 2px;white-space:normal}
+      .title div{font-size:12px}
+      .filters{display:flex;flex-wrap:nowrap;justify-content:flex-start;gap:8px;overflow-x:auto;overflow-y:visible;padding:2px 0 4px;margin:0 -2px;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+      .filters::-webkit-scrollbar{display:none}
+      .filters select,.filters input,.filters button,.multiSelect{flex:0 0 auto;min-width:150px}
+      .filters button{min-width:auto;padding:9px 12px}
+      .multiSelect{width:185px;min-width:185px}
+      .multiSelect>button{height:36px;padding:8px 32px 8px 10px}
+      .multiMenu{position:fixed;left:10px;right:10px;top:104px;width:auto;max-height:58svh;z-index:11000}
+      .content{padding:12px 10px calc(86px + env(safe-area-inset-bottom))}
+      .side{position:fixed;left:0;right:0;bottom:0;top:auto;height:auto;z-index:10000;padding:0;background:rgba(255,255,255,.96);border-top:1px solid #dbe5f1;border-right:0;box-shadow:0 -10px 28px #0b2b5c1f;backdrop-filter:blur(14px);overflow:visible}
+      .side .logo,.side .brand,.side .download{display:none!important}
+      .nav{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:0;padding:6px 8px calc(6px + env(safe-area-inset-bottom))}
+      .nav button{height:52px;min-width:0;margin:0;padding:0;border-radius:18px;display:grid;place-items:center;color:#697589;background:transparent;font-size:0;line-height:0}
+      .nav button:hover,.nav button.active{background:#eaf3ff;color:#1168c5}
+      .nav .ico{width:42px;height:42px;display:grid;place-items:center;color:inherit}
+      .nav .ico svg{width:23px;height:23px;stroke-width:2.2}
+      .kpis,.gov-grid,.row2,.row3,.row-main,.row-bottom,.combined-grid,.compact-row,.quality-row,.territory-layout,.territory-layout-registros,#resumen .resumen-layout,#resumen .resumen-left,#resumen .compact-row{grid-template-columns:1fr!important}
+      .grid{gap:10px}
+      .kpis{margin-bottom:10px}
+      .kpi{min-height:84px;padding:12px 10px;border-radius:10px}
+      .kpi .label{font-size:12px}
+      .kpi .num{font-size:22px;margin-top:6px}
+      .kpi .sub{font-size:11px}
+      .card{padding:12px;border-radius:10px;min-height:0}
+      .card h3{font-size:15px;line-height:1.2;margin-bottom:10px}
+      .chartBox,#gobierno .chartBox,#visvip .chartBox,#obra .chartBox,#economico .chartBox{height:260px}
+      .chartBox.sm,#visvip .chartBox.sm,#obra .chartBox.sm{height:230px}
+      .map,.summary-map-wrap .map,#resumen .summary-map-wrap .map,#resumen .resumen-map-card .map,.territory-map-card .map,.quality-row .map{height:360px;min-height:360px;border-radius:10px}
+      .territory-map-card,#resumen .resumen-map-card,.quality-row .card{min-height:0;display:block}
+      .summaryTableWrap,.province-register-card{overflow:auto;-webkit-overflow-scrolling:touch}
+      .table,#resumen .summaryTable,.province-register-table{font-size:12px}
+      .table th,.table td,#resumen .summaryTable th,#resumen .summaryTable td,.province-register-table th,.province-register-table td{padding:7px 6px}
+      .barItem{grid-template-columns:88px 1fr 52px;gap:6px}
+      .miniHeader{align-items:flex-start}
+      .legend{justify-content:center}
+      .empty{padding:28px 12px}
+    }
   </style>
 </head>
 <body>
@@ -240,7 +289,7 @@ function renderVisVip(d,total){let vis=d.filter(r=>r.tipo==='VIS'), vip=d.filter
 function renderObra(d,total){let e=group(d,'estado');$('kpiObra').innerHTML=kpiHTML(e.slice(0,4).map(x=>[x[0],fmt(x[1]),pct(x[1],total)]));chart('chObraDonut','doughnut',e.map(x=>x[0]),[{data:e.map(x=>x[1]),backgroundColor:STATE_COLORS}]);let provs=group(d,'prov').slice(0,10).map(x=>x[0]);let estados=[...new Set(d.map(r=>r.estado))];chart('chObraProv','bar',provs,estados.map((es,i)=>({label:es,data:provs.map(p=>sum(d.filter(r=>r.prov===p&&r.estado===es))),backgroundColor:STATE_COLORS[i%STATE_COLORS.length]})),{indexAxis:'y',scales:{x:{stacked:true},y:{stacked:true}},plugins:{valueLabels:false}});let noRows=group(d.filter(r=>norm(r.estado).includes('NO CONSTRUIDA')),'prov'), noCard=$('noConstruidas')?.closest('.card');if(noCard)noCard.classList.toggle('hide',!noRows.length);if(noRows.length)barList('noConstruidas',noRows);}
 function renderEconomico(d){let prices=d.map(r=>r.precio).filter(x=>x>0), val=d.reduce((a,r)=>a+r.precio*r.viv,0);$('kpiEcon').innerHTML=kpiHTML([['Precio Promedio',money(avg(d,'precio',true)),'Ponderado'],['Precio Mediano',money(median(prices)),'Por registro'],['Precio Máximo',money(Math.max(...prices,0)),''],['Área Promedio',avg(d,'area',true).toLocaleString('es-EC',{maximumFractionDigits:1})+' m²',''],['Monto Estimado',moneyMillions(val),'Millones USD: precio x viviendas']]);let bins=[0,30000,60000,90000,120000,150000,200000,300000];let counts=bins.slice(0,-1).map((b,i)=>prices.filter(x=>x>=b&&x<bins[i+1]).length);chart('chHistPrecio','bar',bins.slice(0,-1).map((b,i)=>`${fmt(b/1000)}k-${fmt(bins[i+1]/1000)}k`),[{label:'Registros',data:counts,backgroundColor:COLORS.blue}]);let provs=group(d,'prov').slice(0,10).map(x=>x[0]);chart('chPrecioProv','bar',provs,[{label:'Precio promedio',data:provs.map(p=>avg(d.filter(r=>r.prov===p),'precio',true)),backgroundColor:COLORS.blue}],{indexAxis:'y'});let sample=d.filter(r=>r.precio>0&&r.area>0&&r.area<300&&r.precio<250000).slice(0,1800).map(r=>({x:r.area,y:r.precio}));chart('chScatter','scatter',[''],[{label:'Registro',data:sample,backgroundColor:COLORS.blue}],{plugins:{valueLabels:false},scales:{x:{title:{display:true,text:'Área vivienda (m²)'}},y:{title:{display:true,text:'Precio (USD)'},ticks:{callback:v=>money(v)}}}});barList('valorProv',group(d,'prov').map(([p])=>[p,d.filter(r=>r.prov===p).reduce((a,r)=>a+r.precio*r.viv,0)]));}
 function renderMercado(d){let seg=group(d,'seg');chart('chSeg','doughnut',seg.map(x=>x[0]),[{data:seg.map(x=>x[1]),backgroundColor:PALETTE}]);let provs=group(d,'prov').slice(0,5).map(x=>x[0]);let segs=seg.slice(0,4).map(x=>x[0]);chart('chSegProv','bar',provs,segs.map((s,i)=>({label:s,data:provs.map(p=>sum(d.filter(r=>r.prov===p&&r.seg===s))),backgroundColor:PALETTE[i]})),{scales:{x:{stacked:true},y:{stacked:true}},plugins:{valueLabels:false}});chart('chPrecioSeg','bar',segs,[{label:'Precio promedio',data:segs.map(s=>avg(d.filter(r=>r.seg===s),'precio',true)),backgroundColor:PALETTE.slice(0,segs.length)}]);}
-function renderGobierno(d,total){let g=group(d,'gobierno'), actual=d.filter(r=>norm(r.gobierno).includes('ACTUAL')), anteriores=d.filter(r=>!norm(r.gobierno).includes('ACTUAL')), visAct=sum(actual.filter(r=>r.tipo==='VIS')), vipAct=sum(actual.filter(r=>r.tipo==='VIP')), visAnt=sum(anteriores.filter(r=>r.tipo==='VIS')), vipAnt=sum(anteriores.filter(r=>r.tipo==='VIP')), totalProjects=unique(d,projectKey), actualProjects=unique(actual,projectKey), anterioresProjects=unique(anteriores,projectKey);$('kpiGob').innerHTML=kpiHTML([['Viviendas Registradas<br>Gobiernos Anteriores',fmt(sum(anteriores)),pct(sum(anteriores),total)],['Viviendas Registradas<br>Gobierno Actual',fmt(sum(actual)),pct(sum(actual),total)],['Proyectos Registrados<br>Gobiernos Anteriores',fmt(anterioresProjects),pct(anterioresProjects,totalProjects)],['Proyectos Registrados<br>Gobierno Actual',fmt(actualProjects),pct(actualProjects,totalProjects)],['VIS Gob. Anteriores',fmt(visAnt),'Viviendas VIS'],['VIS Gob. Actual',fmt(visAct),'Viviendas VIS'],['VIP Gob. Anteriores',fmt(vipAnt),'Viviendas VIP'],['VIP Gob. Actual',fmt(vipAct),'Viviendas VIP']]);let compLabels=['Viviendas','Viviendas VIS','Viviendas VIP'], compMax=Math.max(sum(actual),sum(anteriores),visAct,visAnt,vipAct,vipAnt);chart('chGob','bar',compLabels,[{label:'Gobierno Actual',data:[sum(actual),visAct,vipAct],backgroundColor:COLORS.blue,maxBarThickness:28},{label:'Gobiernos Anteriores',data:[-sum(anteriores),-visAnt,-vipAnt],backgroundColor:COLORS.gray,maxBarThickness:28}],{indexAxis:'y',plugins:{valueLabels:{absolute:true},tooltip:{callbacks:{label:c=>`${c.dataset.label}: ${fmt(Math.abs(c.raw))}`}}},scales:{x:{min:-compMax*1.12,max:compMax*1.12,grid:{color:v=>v.tick.value===0?'#94a3b8':'#e5e7eb'},ticks:{callback:v=>fmt(Math.abs(v))}},y:{grid:{display:false}}}});let years=[...new Set(d.map(r=>dateYear(r.fecha)).filter(y=>y&&Number(y)<=2026))].sort((a,b)=>Number(a)-Number(b));let gs=g.map(x=>x[0]);chart('chGobAnio','line',years,gs.map((gg,i)=>({label:gg,data:years.map(y=>sum(d.filter(r=>r.gobierno===gg&&dateYear(r.fecha)===y))),borderColor:[COLORS.blue,COLORS.gray][i],backgroundColor:[COLORS.blue,COLORS.gray][i],pointRadius:4,pointHoverRadius:5,tension:.32})))}
+function renderGobierno(d,total){let g=group(d,'gobierno'), actual=d.filter(r=>norm(r.gobierno).includes('ACTUAL')), anteriores=d.filter(r=>!norm(r.gobierno).includes('ACTUAL')), visAct=sum(actual.filter(r=>r.tipo==='VIS')), vipAct=sum(actual.filter(r=>r.tipo==='VIP')), visAnt=sum(anteriores.filter(r=>r.tipo==='VIS')), vipAnt=sum(anteriores.filter(r=>r.tipo==='VIP')), totalProjects=unique(d,projectKey), actualProjects=unique(actual,projectKey), anterioresProjects=unique(anteriores,projectKey);$('kpiGob').innerHTML=kpiHTML([['Viviendas Registradas<br>Gobiernos Anteriores',fmt(sum(anteriores)),pct(sum(anteriores),total)],['Viviendas Registradas<br>Gobierno Actual',fmt(sum(actual)),pct(sum(actual),total)],['Proyectos Registrados<br>Gobiernos Anteriores',fmt(anterioresProjects),pct(anterioresProjects,totalProjects)],['Proyectos Registrados<br>Gobierno Actual',fmt(actualProjects),pct(actualProjects,totalProjects)],['VIS Gob. Anteriores',fmt(visAnt),'Viviendas VIS'],['VIS Gob. Actual',fmt(visAct),'Viviendas VIS'],['VIP Gob. Anteriores',fmt(vipAnt),'Viviendas VIP'],['VIP Gob. Actual',fmt(vipAct),'Viviendas VIP']]);let compLabels=['Viviendas','Viviendas VIS','Viviendas VIP'], compMax=Math.max(sum(actual),sum(anteriores),visAct,visAnt,vipAct,vipAnt);chart('chGob','bar',compLabels,[{label:'Gobierno Actual',data:[sum(actual),visAct,vipAct],backgroundColor:COLORS.blue,maxBarThickness:28},{label:'Gobiernos Anteriores',data:[-sum(anteriores),-visAnt,-vipAnt],backgroundColor:COLORS.gray,maxBarThickness:28}],{indexAxis:'y',plugins:{valueLabels:{absolute:true},tooltip:{callbacks:{label:c=>`${c.dataset.label}: ${fmt(Math.abs(c.raw))}`}}},scales:{x:{min:-compMax*1.12,max:compMax*1.12,grid:{color:v=>v.tick.value===0?'#94a3b8':'#e5e7eb'},ticks:{callback:v=>fmt(Math.abs(v))}},y:{grid:{display:false}}}});let years=[...new Set(d.map(r=>dateYear(r.fecha)).filter(y=>y&&Number(y)<=2026))].sort((a,b)=>Number(a)-Number(b));let gs=g.map(x=>x[0]);chart('chGobAnio','line',years,gs.map(gg=>{let lineColor=norm(gg).includes('ACTUAL')?COLORS.blue:COLORS.gray;return {label:gg,data:years.map(y=>sum(d.filter(r=>r.gobierno===gg&&dateYear(r.fecha)===y))),borderColor:lineColor,backgroundColor:lineColor,pointRadius:4,pointHoverRadius:5,tension:.32};}))}
 function renderCalidad(d,coord,coordProjects){let projects=projectRows(d), valid=coordProjects.length, pending=projects.filter(p=>!p.hasValidCoord), fields=raw[0]?Object.keys(raw[0]).length:0, vivGeo=sum(coordProjects), vivNoGeo=sum(pending);$('kpiCal').innerHTML=kpiHTML([['Proyectos con coordenada válida',fmt(valid),pct(valid,projects.length)],['Proyectos sin coordenada válida',fmt(pending.length),pct(pending.length,projects.length)],['Total de proyectos',fmt(projects.length),'NRO DE REGISTRO únicos'],['Viviendas en proyectos georreferenciados',fmt(vivGeo),'Suma de viviendas de proyectos válidos'],['Viviendas en proyectos no georreferenciados',fmt(vivNoGeo),'Suma de viviendas de proyectos pendientes'],['Campos detectados',fmt(fields),'Se leen dinámicamente del Sheet']]);renderMap('mapCal','cal',coordProjects,'tipo');let pend={};pending.forEach(p=>{let prov=p.prov||'SIN PROVINCIA';pend[prov]=(pend[prov]||0)+1});let rows=Object.entries(pend).sort((a,b)=>b[1]-a[1]||a[0].localeCompare(b[0],'es')), max=rows[0]?.[1]||1;$('pendientesProv').innerHTML='<div class="barList">'+rows.map(r=>`<div class="barItem"><b>${r[0]}</b><div class="barTrack"><div class="barFill" style="width:${r[1]/max*100}%"></div></div><span class="right">${fmt(r[1])}</span></div>`).join('')+'</div>';}
 function reportEscape(v){return String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));}
 function filterLabel(id, allLabel){let el=$(id); if(!el||!el.value)return allLabel; let opt=el.options[el.selectedIndex]; return opt?opt.text:el.value;}
