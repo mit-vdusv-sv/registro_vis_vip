@@ -356,6 +356,9 @@ function reportBaseFileName(){let safeGob=norm(filterLabel('fGob','TODOS_LOS_GOB
 function reportPdfRow(label,m){return [label,fmt(m.proyectos),fmt(m.viv),money(m.precio),Number(m.area||0).toLocaleString('es-EC',{minimumFractionDigits:2,maximumFractionDigits:2})];}
 function reportSummaryPdfRows(d){let rows=reportTypes().map(t=>reportPdfRow(t,reportMetrics(d.filter(r=>r.tipo===t))));rows.push(reportPdfRow('Total General',reportMetrics(d)));return rows;}
 function reportProvincePdfRows(d){let types=reportTypes(), rows=[], provs=[...new Set(d.map(r=>r.prov).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'es'));provs.forEach(p=>{let dp=d.filter(r=>r.prov===p);rows.push(reportPdfRow(p.toUpperCase(),reportMetrics(dp)));types.forEach(t=>{let dt=dp.filter(r=>r.tipo===t);if(dt.length)rows.push(reportPdfRow(t,reportMetrics(dt)));});});return rows.length?rows:[['No existen registros para los filtros aplicados.','','','','']];}
+function pdfAnchorDownload(blob, filename){let url=URL.createObjectURL(blob), a=document.createElement('a');a.href=url;a.download=filename;a.style.display='none';document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(url);a.remove();},1200);}
+function pdfSaveFileOnly(doc, filename){let blob=doc.output('blob'), file=null;try{file=new File([blob],filename,{type:'application/pdf'});}catch(e){}if(file&&navigator.canShare&&navigator.canShare({files:[file]})){navigator.share({files:[file]}).catch(e=>{if(e?.name!=='AbortError')pdfAnchorDownload(blob,filename);});return;}pdfAnchorDownload(blob,filename);}
+function pdfBoldTotalRows(data){if(data.section!=='body')return;let label=Array.isArray(data.row.raw)?data.row.raw[0]:'';let isTotal=label==='Total General'||(label&&label!=='VIS'&&label!=='VIP'&&!label.startsWith('No existen'));if(isTotal)data.cell.styles.fontStyle='bold';}
 function downloadPdfReport(){
   let jsPDF=window.jspdf?.jsPDF;
   if(!jsPDF){alert('No se pudo cargar el generador PDF. Intenta nuevamente cuando termine de cargar la página.');return;}
@@ -365,7 +368,7 @@ function downloadPdfReport(){
   let header='data:image/jpeg;base64,'+REPORT_HEADER_JPG, footer='data:image/jpeg;base64,'+REPORT_FOOTER_JPG;
   let addChrome=()=>{try{doc.addImage(header,'JPEG',0,0,pageW,96);doc.addImage(footer,'JPEG',0,pageH-76,pageW,76);}catch(e){}};
   let margin={top:126,bottom:84,left:34,right:34};
-  let tableOpts={theme:'grid',margin,styles:{font:'helvetica',fontSize:7.2,cellPadding:3,halign:'center',valign:'middle',lineColor:[183,204,227],lineWidth:.5},headStyles:{fillColor:[47,117,181],textColor:255,fontStyle:'bold'},alternateRowStyles:{fillColor:[238,244,251]},columnStyles:{0:{halign:'left',fontStyle:'bold'}},didDrawPage:addChrome};
+  let tableOpts={theme:'grid',margin,styles:{font:'helvetica',fontSize:7.2,cellPadding:3,halign:'center',valign:'middle',lineColor:[183,204,227],lineWidth:.5},headStyles:{fillColor:[47,117,181],textColor:255,fontStyle:'bold'},alternateRowStyles:{fillColor:[238,244,251]},columnStyles:{0:{halign:'left',fontStyle:'bold'}},didDrawPage:addChrome,didParseCell:pdfBoldTotalRows};
   addChrome();
   doc.setTextColor(17,24,39);
   doc.setFont('helvetica','bold');doc.setFontSize(11);
@@ -379,7 +382,7 @@ function downloadPdfReport(){
   y=(doc.lastAutoTable?.finalY||y)+18;
   doc.setFont('helvetica','bold');doc.text('Registro por provincia de viviendas de interés social y viviendas de interés público:',34,y);y+=8;
   doc.autoTable({startY:y,head:[['PROVINCIA','PROYECTOS CALIFICADOS','VIVIENDAS REGISTRADAS','SUMA DE PRECIO DE VENTA POR TIPO','SUBTOTAL ÁREA POR TIPO DE VIVIENDA']],body:reportProvincePdfRows(d),...tableOpts});
-  doc.save(reportBaseFileName()+'.pdf');
+  pdfSaveFileOnly(doc,reportBaseFileName()+'.pdf');
 }
 function downloadWordReport(){
   let d=filtered();
