@@ -250,7 +250,30 @@ function reportMetrics(arr){return {proyectos:unique(arr,projectKey), viv:sum(ar
 function reportRow(label, m, cls=''){return `<tr class="${cls}"><td>${reportEscape(label)}</td><td>${fmt(m.proyectos)}</td><td>${fmt(m.viv)}</td><td>${money(m.precio)}</td><td>${Number(m.area||0).toLocaleString('es-EC',{minimumFractionDigits:2,maximumFractionDigits:2})}</td></tr>`;}
 function reportSummaryTable(d){let types=reportTypes(), body=types.map(t=>reportRow(t, reportMetrics(d.filter(r=>r.tipo===t)))).join(''); return `<table><thead><tr><th>TIPO DE<br>PROYECTO</th><th>PROYECTOS<br>CALIFICADOS</th><th>VIVIENDAS<br>REGISTRADAS</th><th>SUMA DE PRECIO DE VENTA<br>POR TIPO</th><th>SUBTOTAL ÁREA POR TIPO<br>DE VIVIENDA (M2)</th></tr></thead><tbody>${body}${reportRow('Total General', reportMetrics(d), 'total')}</tbody></table>`;}
 function reportProvinceTable(d){let types=reportTypes(); let provs=[...new Set(d.map(r=>r.prov).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'es')); let rows=''; provs.forEach(p=>{let dp=d.filter(r=>r.prov===p); rows+=reportRow(p.toUpperCase(), reportMetrics(dp), 'prov'); types.forEach(t=>{let dt=dp.filter(r=>r.tipo===t); if(dt.length)rows+=reportRow(t, reportMetrics(dt));});}); if(!rows)rows='<tr><td colspan="5" style="text-align:center">No existen registros para los filtros aplicados.</td></tr>'; return `<table><thead><tr><th>PROVINCIA</th><th>PROYECTOS<br>CALIFICADOS</th><th>VIVIENDAS<br>REGISTRADAS</th><th>SUMA DE PRECIO DE VENTA<br>POR TIPO</th><th>SUBTOTAL ÁREA POR<br>TIPO DE VIVIENDA</th></tr></thead><tbody>${rows}</tbody></table>`;}
-function downloadWordReport(){
+function reportBlobToDataURL(blob){
+  return new Promise((resolve,reject)=>{
+    const reader=new FileReader();
+    reader.onload=()=>resolve(reader.result);
+    reader.onerror=reject;
+    reader.readAsDataURL(blob);
+  });
+}
+
+async function reportImageSrc(names){
+  for(const name of names){
+    try{
+      const url=new URL(name, window.location.href).href;
+      const res=await fetch(url,{cache:'no-store'});
+      if(res.ok){
+        const blob=await res.blob();
+        return await reportBlobToDataURL(blob);
+      }
+    }catch(e){}
+  }
+  return names[0];
+}
+
+async function downloadWordReport(){
   let d=filtered();
   let metrics=reportMetrics(d);
   let gobierno=filterLabel('fGob','Todos los gobiernos');
@@ -259,8 +282,10 @@ function downloadWordReport(){
   let estado=filterLabel('fEstado','Todos los estados');
   let canton=filterLabel('fCan','Todos los cantones');
   let fecha=reportDateLabel();
+  const headerImg=await reportImageSrc(['Encabezado.jpeg','Encabezado.jpg']);
+  const footerImg=await reportImageSrc(['Pie_pagina.jpeg','Pie_pagina.jpg']);
   let html=`<!DOCTYPE html><html><head><meta charset="UTF-8"><style>
-    @page WordSection1{size:8.5in 11in;margin:0.55in 0.45in 0.55in 0.45in;}
+    @page WordSection1{size:8.5in 11in;margin:1.05in 0.45in 0.80in 0.45in;mso-header:h1;mso-footer:f1;}
     div.WordSection1{page:WordSection1;}
     body{font-family:'Arial Narrow',Arial,sans-serif;font-size:10pt;color:#111;margin:0;}
     .title{text-align:center;font-weight:700;font-size:12pt;line-height:1.25;margin:0 0 34px 0;text-transform:uppercase;}
@@ -273,7 +298,12 @@ function downloadWordReport(){
     tr:nth-child(even) td{background:#eef4fb;}
     tr.prov td{background:#d9e6f2;font-weight:700;}
     tr.total td{background:#d9e6f2;font-weight:700;}
-  </style></head><body><div class="WordSection1">
+    .report-header,.report-footer{margin:0;text-align:center;}
+    .report-header img,.report-footer img{width:7.60in;height:auto;display:block;margin:0 auto;}
+  </style></head><body>
+  <div style="mso-element:header" id="h1"><p class="report-header"><img src="${headerImg}"></p></div>
+  <div style="mso-element:footer" id="f1"><p class="report-footer"><img src="${footerImg}"></p></div>
+  <div class="WordSection1">
     <div class="title">REPORTE DE PROYECTOS DE VIVIENDA DE INTERÉS SOCIAL Y VIVIENDA DE INTERÉS PÚBLICO<br>CALIFICADOS – PROGRAMA MITI – MITI</div>
     <div class="meta">
       Periodo reportado:<br>
