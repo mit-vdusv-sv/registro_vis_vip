@@ -74,15 +74,16 @@
     #resumen table.summaryTable tbody tr:nth-child(even){background:#eef4fb!important}
     #resumen table.summaryTable tfoot td{background:#d9e6f2!important}
     .mobile-menu-btn,.mobile-scrim,.mobile-report-btn{display:none}
+    .dateField{display:contents}.dateField span{display:none}
     @media(max-width:760px){
       html,body{width:100%;max-width:100%;overflow-x:hidden;background:#f2f5f9}
       body{font-size:13px;-webkit-text-size-adjust:100%}
       .app{display:block;min-height:100svh;background:#f2f5f9}
       .main{width:100%;min-width:0}
-      .top{position:sticky;top:0;z-index:9000;display:grid;grid-template-columns:42px 1fr;gap:9px;align-items:center;padding:12px 12px 10px;background:#082b5f;box-shadow:0 5px 18px #082b5f24}
+      .top{position:sticky;top:0;z-index:12000;display:grid;grid-template-columns:42px 1fr;gap:9px;align-items:center;padding:12px 12px 10px;background:#082b5f;box-shadow:0 5px 18px #082b5f24}
       .mobile-menu-btn{display:grid;place-items:center;width:40px;height:40px;border:1px solid #ffffff38;border-radius:12px;background:#0a356d;color:#fff;padding:0}
       .mobile-menu-btn svg{width:23px;height:23px;stroke-width:2.3}
-      .mobile-scrim{position:fixed;inset:0;z-index:11900;background:#081b3490;border:0;padding:0}
+      .mobile-scrim{position:fixed;inset:0;z-index:11000;background:#081b3490;border:0;padding:0}
       body.mobile-filters-open .mobile-scrim{display:block}
       .title{min-width:0;margin:0}
       .title h1{font-size:18px;line-height:1.15;margin:0 0 2px;white-space:normal}
@@ -94,6 +95,9 @@
       .filters::-webkit-scrollbar{display:none}
       .filters select,.filters input,.filters button,.multiSelect{display:block;width:100%;min-width:0;margin:0 0 10px;flex:none}
       .filters select,.filters input,.multiSelect>button{height:42px;background:#f8fafc!important;border:1px solid #cfdbe9!important;color:#111827!important;border-radius:10px;padding:9px 12px;font-size:14px}
+      .dateField{display:block;width:100%;margin:0 0 10px}
+      .dateField span{display:block;margin:0 0 5px;font-size:12px;font-weight:800;color:#334155}
+      .dateField input{margin:0}
       .filters button{min-width:0;padding:10px 12px;border-radius:10px}
       .multiSelect{width:100%;min-width:0}
       .multiSelect>button{padding-right:34px}
@@ -164,8 +168,8 @@
         <select id="fTipo"><option value="">VIS y VIP</option><option>VIS</option><option>VIP</option></select>
         <select id="fEstado"><option value="">Todos los estados</option></select>
         <select id="fGob"><option value="">Todos los gobiernos</option></select>
-        <input id="fDesde" type="date" title="Periodo desde">
-        <input id="fHasta" type="date" title="Periodo hasta">
+        <label class="dateField"><span>Fecha desde:</span><input id="fDesde" type="date" title="Periodo desde"></label>
+        <label class="dateField"><span>Fecha hasta:</span><input id="fHasta" type="date" title="Periodo hasta"></label>
         <button type="button" onclick="clearFilters()">Limpiar</button>
         <button class="mobile-report-btn" type="button" onclick="downloadWordReport()">Descargar reporte</button>
       </div>
