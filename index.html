@@ -73,22 +73,33 @@
     #resumen table.summaryTable tbody tr:nth-child(odd){background:#ffffff!important}
     #resumen table.summaryTable tbody tr:nth-child(even){background:#eef4fb!important}
     #resumen table.summaryTable tfoot td{background:#d9e6f2!important}
+    .mobile-menu-btn,.mobile-scrim,.mobile-report-btn{display:none}
     @media(max-width:760px){
       html,body{width:100%;max-width:100%;overflow-x:hidden;background:#f2f5f9}
       body{font-size:13px;-webkit-text-size-adjust:100%}
       .app{display:block;min-height:100svh;background:#f2f5f9}
       .main{width:100%;min-width:0}
-      .top{position:sticky;top:0;z-index:9000;display:block;padding:10px 12px 8px;background:#082b5f;box-shadow:0 5px 18px #082b5f24}
-      .title{min-width:0;margin-bottom:8px}
+      .top{position:sticky;top:0;z-index:9000;display:grid;grid-template-columns:42px 1fr;gap:9px;align-items:center;padding:12px 12px 10px;background:#082b5f;box-shadow:0 5px 18px #082b5f24}
+      .mobile-menu-btn{display:grid;place-items:center;width:40px;height:40px;border:1px solid #ffffff38;border-radius:12px;background:#0a356d;color:#fff;padding:0}
+      .mobile-menu-btn svg{width:23px;height:23px;stroke-width:2.3}
+      .mobile-scrim{position:fixed;inset:0;z-index:11900;background:#081b3490;border:0;padding:0}
+      body.mobile-filters-open .mobile-scrim{display:block}
+      .title{min-width:0;margin:0}
       .title h1{font-size:18px;line-height:1.15;margin:0 0 2px;white-space:normal}
       .title div{font-size:12px}
-      .filters{display:flex;flex-wrap:nowrap;justify-content:flex-start;gap:8px;overflow-x:auto;overflow-y:visible;padding:2px 0 4px;margin:0 -2px;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+      .update{grid-column:1/-1;text-align:left;font-size:11px;line-height:1.25;margin-top:2px}
+      .filters{position:fixed;top:0;bottom:0;left:0;z-index:12000;display:block;width:min(330px,88vw);padding:18px 14px calc(18px + env(safe-area-inset-bottom));margin:0;background:#fff;color:#111827;border-right:1px solid #dbe5f1;box-shadow:14px 0 32px #0b2b5c2e;overflow-y:auto;overflow-x:hidden;transform:translateX(-105%);transition:transform .22s ease;-webkit-overflow-scrolling:touch}
+      body.mobile-filters-open .filters{transform:translateX(0)}
+      .filters:before{content:'Filtros';display:block;margin:0 0 14px;font-size:20px;line-height:1;font-weight:800;color:#0f172a}
       .filters::-webkit-scrollbar{display:none}
-      .filters select,.filters input,.filters button,.multiSelect{flex:0 0 auto;min-width:150px}
-      .filters button{min-width:auto;padding:9px 12px}
-      .multiSelect{width:185px;min-width:185px}
-      .multiSelect>button{height:36px;padding:8px 32px 8px 10px}
-      .multiMenu{position:fixed;left:10px;right:10px;top:104px;width:auto;max-height:58svh;z-index:11000}
+      .filters select,.filters input,.filters button,.multiSelect{display:block;width:100%;min-width:0;margin:0 0 10px;flex:none}
+      .filters select,.filters input,.multiSelect>button{height:42px;background:#f8fafc!important;border:1px solid #cfdbe9!important;color:#111827!important;border-radius:10px;padding:9px 12px;font-size:14px}
+      .filters button{min-width:0;padding:10px 12px;border-radius:10px}
+      .multiSelect{width:100%;min-width:0}
+      .multiSelect>button{padding-right:34px}
+      .multiSelect>button:after{color:#64748b}
+      .multiMenu{position:static;left:auto;right:auto;top:auto;width:100%;max-height:38svh;margin:-4px 0 10px;z-index:auto;box-shadow:none;border-color:#dbe5f1}
+      .mobile-report-btn{display:block!important;background:#082b5f!important;color:#fff!important;border:0!important;font-weight:800}
       .content{padding:12px 10px calc(86px + env(safe-area-inset-bottom))}
       .side{position:fixed;left:0;right:0;bottom:0;top:auto;height:auto;z-index:10000;padding:0;background:rgba(255,255,255,.96);border-top:1px solid #dbe5f1;border-right:0;box-shadow:0 -10px 28px #0b2b5c1f;backdrop-filter:blur(14px);overflow:visible}
       .side .logo,.side .brand,.side .download{display:none!important}
@@ -97,30 +108,41 @@
       .nav button:hover,.nav button.active{background:#eaf3ff;color:#1168c5}
       .nav .ico{width:42px;height:42px;display:grid;place-items:center;color:inherit}
       .nav .ico svg{width:23px;height:23px;stroke-width:2.2}
-      .kpis,.gov-grid,.row2,.row3,.row-main,.row-bottom,.combined-grid,.compact-row,.quality-row,.territory-layout,.territory-layout-registros,#resumen .resumen-layout,#resumen .resumen-left,#resumen .compact-row{grid-template-columns:1fr!important}
-      .grid{gap:10px}
+      .kpis,.gov-grid,.compact-row,#resumen .compact-row{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+      .row2,.row3,.row-main,.row-bottom,.combined-grid,.quality-row,.territory-layout,.territory-layout-registros,#resumen .resumen-layout,#resumen .resumen-left{grid-template-columns:1fr!important}
+      .grid{gap:9px}
       .kpis{margin-bottom:10px}
-      .kpi{min-height:84px;padding:12px 10px;border-radius:10px}
-      .kpi .label{font-size:12px}
-      .kpi .num{font-size:22px;margin-top:6px}
-      .kpi .sub{font-size:11px}
+      .kpi{min-height:114px;padding:10px 7px;border-radius:10px}
+      .metric-icon{width:28px;height:28px;margin-bottom:6px}
+      .metric-icon svg{width:16px;height:16px}
+      .kpi .label{font-size:11px;line-height:1.18;overflow-wrap:anywhere}
+      .kpi .num{font-size:22px;line-height:1.1;margin-top:7px}
+      .kpi .sub{font-size:10.5px;line-height:1.2}
       .card{padding:12px;border-radius:10px;min-height:0}
       .card h3{font-size:15px;line-height:1.2;margin-bottom:10px}
       .chartBox,#gobierno .chartBox,#visvip .chartBox,#obra .chartBox,#economico .chartBox{height:260px}
       .chartBox.sm,#visvip .chartBox.sm,#obra .chartBox.sm{height:230px}
       .map,.summary-map-wrap .map,#resumen .summary-map-wrap .map,#resumen .resumen-map-card .map,.territory-map-card .map,.quality-row .map{height:360px;min-height:360px;border-radius:10px}
       .territory-map-card,#resumen .resumen-map-card,.quality-row .card{min-height:0;display:block}
-      .summaryTableWrap,.province-register-card{overflow:auto;-webkit-overflow-scrolling:touch}
-      .table,#resumen .summaryTable,.province-register-table{font-size:12px}
-      .table th,.table td,#resumen .summaryTable th,#resumen .summaryTable td,.province-register-table th,.province-register-table td{padding:7px 6px}
+      .summaryTableWrap,.province-register-card{overflow:visible}
+      .summaryTableTitle{font-size:13px;line-height:1.15;text-align:left}
+      .table,#resumen .summaryTable,.province-register-table{width:100%;table-layout:fixed;font-size:10.5px;line-height:1.15}
+      .table th,.table td,#resumen .summaryTable th,#resumen .summaryTable td,.province-register-table th,.province-register-table td{padding:6px 4px;overflow-wrap:anywhere;word-break:normal}
+      #resumen .summaryTable th,#resumen .summaryTable td{text-align:center}
+      #resumen .summaryTable th:first-child,#resumen .summaryTable td:first-child,.province-register-table th:first-child,.province-register-table td:first-child{text-align:left}
+      .province-register-table th:nth-child(1),.province-register-table td:nth-child(1){width:28%}
+      .province-register-table th:nth-child(2),.province-register-table td:nth-child(2){width:17%}
+      .province-register-table th:nth-child(3),.province-register-table td:nth-child(3){width:23%}
+      .province-register-table th:nth-child(4),.province-register-table td:nth-child(4),.province-register-table th:nth-child(5),.province-register-table td:nth-child(5){width:16%}
       .barItem{grid-template-columns:88px 1fr 52px;gap:6px}
       .miniHeader{align-items:flex-start}
       .legend{justify-content:center}
       .empty{padding:28px 12px}
     }
-  </style>
+</style>
 </head>
 <body>
+<button class="mobile-scrim" type="button" onclick="closeMobileFilters()" aria-label="Cerrar filtros"></button>
 <div id="loader" class="loader">Cargando información desde Google Sheets...</div>
 <div id="app" class="app hide">
   <aside class="side">
@@ -131,6 +153,7 @@
   </aside>
   <main class="main">
     <header class="top">
+      <button class="mobile-menu-btn" type="button" onclick="toggleMobileFilters(event)" aria-label="Abrir filtros"><i data-lucide="menu"></i></button>
       <div class="title"><h1>Registro de Vivienda VIS y VIP</h1><div id="sectionTitle">Resumen Nacional</div></div>
       <div class="filters">
         <div class="multiSelect" id="fProvMulti">
@@ -143,7 +166,8 @@
         <select id="fGob"><option value="">Todos los gobiernos</option></select>
         <input id="fDesde" type="date" title="Periodo desde">
         <input id="fHasta" type="date" title="Periodo hasta">
-        <button onclick="clearFilters()">Limpiar</button>
+        <button type="button" onclick="clearFilters()">Limpiar</button>
+        <button class="mobile-report-btn" type="button" onclick="downloadWordReport()">Descargar reporte</button>
       </div>
       <div class="update" id="updateTxt"></div>
     </header>
@@ -209,6 +233,8 @@ function toggleProvMenu(ev){ev?.stopPropagation();$('fProvMenu')?.classList.togg
 function setAllProvinces(checked){document.querySelectorAll('#fProvMenu input[type="checkbox"]').forEach(i=>i.checked=checked);updateProvButton();updateCantones();updateAll();}
 function closeProvMenu(){ $('fProvMenu')?.classList.remove('open'); }
 document.addEventListener('click',e=>{let box=$('fProvMulti');if(box&&!box.contains(e.target))closeProvMenu();});
+function toggleMobileFilters(ev){ev?.stopPropagation();document.body.classList.toggle('mobile-filters-open');}
+function closeMobileFilters(){document.body.classList.remove('mobile-filters-open');closeProvMenu();}
 function destroy(){Object.values(charts).forEach(c=>c.destroy());charts={};}
 const valueLabelPlugin={id:'valueLabels',afterDatasetsDraw(chart,args,pluginOptions){if(pluginOptions===false)return;let{ctx}=chart;ctx.save();ctx.font='600 11px Segoe UI';ctx.fillStyle='#334155';ctx.textAlign='center';ctx.textBaseline='middle';chart.data.datasets.forEach((ds,di)=>{let meta=chart.getDatasetMeta(di);if(meta.hidden)return;meta.data.forEach((el,i)=>{let raw=Array.isArray(ds.data)?ds.data[i]:0,val=typeof raw==='object'?(raw.y??raw.r??0):raw;if(!val||Math.abs(val)<1)return;let labelVal=pluginOptions&&pluginOptions.absolute?Math.abs(val):val,pos=el.tooltipPosition();if(chart.config.type==='doughnut'||chart.config.type==='pie'){let total=ds.data.reduce((a,b)=>a+(+b||0),0);if(Math.abs(val)/total<.08)return;ctx.fillText(shortFmt(labelVal),pos.x,pos.y);}else if(chart.config.type==='line'){ctx.fillText(shortFmt(labelVal),pos.x,pos.y-10);}else{ctx.fillText(shortFmt(labelVal),pos.x,pos.y-8);}})});ctx.restore();}};
 if(window.Chart){try{Chart.register(valueLabelPlugin);Chart.defaults.font.family='Segoe UI, Roboto, Arial, sans-serif';Chart.defaults.color='#4b5563';}catch(e){}}
@@ -233,7 +259,7 @@ function updateCantones(){let provs=provinceSet();let cans=[...new Set(data.filt
 function clearFilters(){document.querySelectorAll('#fProvMenu input[type="checkbox"]').forEach(i=>i.checked=false);['fCan','fTipo','fEstado','fGob','fDesde','fHasta'].forEach(id=>{if($(id))$(id).value=''});updateProvButton();updateCantones();updateAll();showSec(active);}
 
 function kpiHTML(items){return items.map(k=>`<div class="kpi">${k[3]?`<div class="metric-icon ${k[3]}"><i data-lucide="${k[4]||'circle'}"></i></div>`:''}<div class="label">${k[0]}</div><div class="num">${k[1]}</div><div class="sub">${k[2]||''}</div></div>`).join('')}
-function showSec(s){active=s;document.querySelectorAll('.section').forEach(e=>e.classList.remove('active'));$(s).classList.add('active');document.querySelectorAll('.nav button').forEach(b=>b.classList.toggle('active',b.dataset.sec===s));$('sectionTitle').innerText=MENU.find(m=>m[0]===s)[2];setTimeout(()=>{Object.values(charts).forEach(c=>{try{c.resize()}catch(e){}});if(mapResumen)mapResumen.invalidateSize();if(mapTerr)mapTerr.invalidateSize();if(mapObra)mapObra.invalidateSize();if(mapCal)mapCal.invalidateSize();},180)}
+function showSec(s){active=s;closeMobileFilters();document.querySelectorAll('.section').forEach(e=>e.classList.remove('active'));$(s).classList.add('active');document.querySelectorAll('.nav button').forEach(b=>b.classList.toggle('active',b.dataset.sec===s));$('sectionTitle').innerText=MENU.find(m=>m[0]===s)[2];setTimeout(()=>{Object.values(charts).forEach(c=>{try{c.resize()}catch(e){}});refitVisibleMaps();},180)}
 function clearFilters(){document.querySelectorAll('#fProvMenu input[type="checkbox"]').forEach(i=>i.checked=false);['fCan','fTipo','fEstado','fGob','fDesde','fHasta'].forEach(id=>{if($(id))$(id).value=''});updateProvButton();updateCantones();updateAll();showSec(active);}
 
 function renderResumenTipoTable(d){
@@ -264,8 +290,12 @@ function updateAll(){destroy();let d=filtered(), total=sum(d), coord=d.filter(va
 }
 function heatColor(v,max){let t=max?Math.max(0,Math.min(1,v/max)):0;return t>.78?'#9a4310':t>.58?'#dc7620':t>.38?'#f6a94f':t>.18?'#ffd099':'#fff0d9';}
 function continentalFeatures(){return {...GEOJSON,features:GEOJSON.features.filter(f=>!['NONE','GALAPAGOS'].includes(norm(f.properties.PROVINCIA)))}}
+function mobileView(){return window.matchMedia&&window.matchMedia('(max-width:760px)').matches;}
+function mapFitOptions(selected){return {padding:mobileView()?[14,14]:[30,30],maxZoom:selected?(mobileView()?8:9):(mobileView()?6:7)};}
+function fitMapToBounds(map,bounds,selected=false){if(!map||!bounds||!bounds.isValid())return;map._targetBounds=bounds;map._targetSelected=!!selected;let apply=()=>{let el=map.getContainer();if(!el||!el.offsetWidth||!el.offsetHeight)return;map.invalidateSize();map.fitBounds(bounds,mapFitOptions(selected));};setTimeout(apply,90);setTimeout(apply,280);}
+function refitVisibleMaps(){[mapResumen,mapTerr,mapObra,mapCal].forEach(m=>{if(m&&m._targetBounds)fitMapToBounds(m,m._targetBounds,m._targetSelected);});}
 function renderSummaryMap(d){let vals=Object.fromEntries(groupProjects(d,'prov'));let valsNorm=Object.fromEntries(Object.entries(vals).map(([k,v])=>[norm(k),v]));let max=Math.max(...Object.values(vals),1), geo=continentalFeatures(), selectedSet=provinceSet(), selectedNorm=selectedSet?new Set([...selectedSet].map(norm)):null;let geoToRender=selectedNorm?{...geo,features:geo.features.filter(f=>selectedNorm.has(norm(f.properties.PROVINCIA)))}:geo;if(!mapResumen){mapResumen=L.map('mapResumen',{zoomControl:false,attributionControl:false,scrollWheelZoom:false,dragging:false,doubleClickZoom:false,boxZoom:false,keyboard:false}).setView([-1.7,-78.9],6);}else{mapResumen.eachLayer(l=>mapResumen.removeLayer(l));}
-  let layer=L.geoJSON(geoToRender,{style:f=>{let name=f.properties.PROVINCIA,key=norm(name),v=valsNorm[key]||0;return {color:'#ffffff',weight:1.1,fillColor:heatColor(v,max),fillOpacity:.82,opacity:1};},onEachFeature:(f,l)=>{let name=f.properties.PROVINCIA,key=norm(name);l.bindTooltip(`<b>${name}</b><br>${fmt(valsNorm[key]||0)} proyectos`,{sticky:true});}}).addTo(mapResumen);let bounds=layer.getBounds();mapResumen.fitBounds(bounds,{padding:[30,30],maxZoom:selectedNorm?7:6});setTimeout(()=>mapResumen.invalidateSize(),120);}
+  let layer=L.geoJSON(geoToRender,{style:f=>{let name=f.properties.PROVINCIA,key=norm(name),v=valsNorm[key]||0;return {color:'#ffffff',weight:1.1,fillColor:heatColor(v,max),fillOpacity:.82,opacity:1};},onEachFeature:(f,l)=>{let name=f.properties.PROVINCIA,key=norm(name);l.bindTooltip(`<b>${name}</b><br>${fmt(valsNorm[key]||0)} proyectos`,{sticky:true});}}).addTo(mapResumen);fitMapToBounds(mapResumen,layer.getBounds(),!!selectedNorm);}
 function provinceRegisterTable(id,d){
   let projects=projectRows(d), m={};
   projects.forEach(p=>{let key=p.prov||'SIN PROVINCIA'; if(!m[key])m[key]={prov:key,reg:0,viv:0,vis:0,vip:0}; m[key].reg++;});
@@ -284,7 +314,7 @@ function renderMap(id,which,arr,colorBy){let selectedSet=provinceSet(), selected
   let geoLayer=L.geoJSON(geoToRender,{style:f=>{let name=f.properties.PROVINCIA,key=norm(name),v=valsNorm[key]||0;return {color:'#ffffff',weight:1,fillColor:heatColor(v,max),fillOpacity:.82,opacity:1};},onEachFeature:(f,l)=>{let name=f.properties.PROVINCIA,key=norm(name);l.bindTooltip(`${name}: ${fmt(valsNorm[key]||0)} proyectos`);}}).addTo(mapVar);
   let pinClass = r => colorBy==='estado' ? 'obra' : (String(r.tipo).includes('/')?'mixed':r.tipo==='VIP'?'vip':'');
   let cluster=L.markerClusterGroup?L.markerClusterGroup({showCoverageOnHover:false,spiderfyOnMaxZoom:true,disableClusteringAtZoom:15,maxClusterRadius:48,iconCreateFunction:c=>{let total=c.getChildCount(), cls=total>=1000?'large':total>=250?'medium':'small';return L.divIcon({html:`<div class="cluster-count ${cls}">${shortFmt(total)}</div>`,className:'',iconSize:[54,54]});}}):L.layerGroup();
-  arr.forEach(r=>{let size=18;let marker=L.marker([r.lat,r.lon],{proyectos:1,icon:L.divIcon({html:`<div class="project-pin ${pinClass(r)}"></div>`,className:'',iconSize:[size,size],iconAnchor:[size/2,size/2]})}).bindPopup(`<b>${r.proyecto||'Proyecto'}</b><br>${r.prov} / ${r.can}<br>${r.tipo} · ${r.estado}<br>Proyecto: ${r.registro || r.key}<br>Viviendas registradas: ${fmt(r.viv)}<br>Precio promedio: ${money(r.precio)}<br>Área promedio: ${r.area.toLocaleString('es-EC',{maximumFractionDigits:1})} m²`);cluster.addLayer(marker);}); cluster.addTo(mapVar);if(geoLayer.getLayers().length)mapVar.fitBounds(geoLayer.getBounds(),{padding:[18,18],maxZoom:selectedNorm?9:7});setTimeout(()=>mapVar.invalidateSize(),120);}
+  arr.forEach(r=>{let size=18;let marker=L.marker([r.lat,r.lon],{proyectos:1,icon:L.divIcon({html:`<div class="project-pin ${pinClass(r)}"></div>`,className:'',iconSize:[size,size],iconAnchor:[size/2,size/2]})}).bindPopup(`<b>${r.proyecto||'Proyecto'}</b><br>${r.prov} / ${r.can}<br>${r.tipo} · ${r.estado}<br>Proyecto: ${r.registro || r.key}<br>Viviendas registradas: ${fmt(r.viv)}<br>Precio promedio: ${money(r.precio)}<br>Área promedio: ${r.area.toLocaleString('es-EC',{maximumFractionDigits:1})} m²`);cluster.addLayer(marker);}); cluster.addTo(mapVar);if(geoLayer.getLayers().length)fitMapToBounds(mapVar,geoLayer.getBounds(),!!selectedNorm);}
 function renderVisVip(d,total){let vis=d.filter(r=>r.tipo==='VIS'), vip=d.filter(r=>r.tipo==='VIP');$('kpiVisVip').innerHTML=kpiHTML([['VIS',fmt(sum(vis)),pct(sum(vis),total)],['VIP',fmt(sum(vip)),pct(sum(vip),total)],['Precio prom. VIS',money(avg(vis,'precio',true)),'Ponderado'],['Precio prom. VIP',money(avg(vip,'precio',true)),'Ponderado'],['Área prom. vivienda',avg(d,'area',true).toLocaleString('es-EC',{maximumFractionDigits:1})+' m²','Ponderada']]);let provs=group(d,'prov').slice(0,10).map(x=>x[0]);let by=(tipo,p)=>sum(d.filter(r=>r.tipo===tipo&&r.prov===p));chart('chVisVipProv','bar',provs,[{label:'VIS',data:provs.map(p=>by('VIS',p)),backgroundColor:TYPE_COLORS[0]},{label:'VIP',data:provs.map(p=>by('VIP',p)),backgroundColor:TYPE_COLORS[1]}],{scales:{x:{stacked:true},y:{stacked:true,beginAtZero:true}},plugins:{valueLabels:false}});chart('chPrecioTipo','bar',['VIS','VIP'],[{label:'Precio promedio',data:[avg(vis,'precio',true),avg(vip,'precio',true)],backgroundColor:TYPE_COLORS}]);chart('chAreaTipo','bar',['VIS','VIP'],[{label:'Área promedio',data:[avg(vis,'area',true),avg(vip,'area',true)],backgroundColor:TYPE_COLORS}]);chart('chTipo2','doughnut',['VIS','VIP'],[{data:[sum(vis),sum(vip)],backgroundColor:TYPE_COLORS}]);}
 function renderObra(d,total){let e=group(d,'estado');$('kpiObra').innerHTML=kpiHTML(e.slice(0,4).map(x=>[x[0],fmt(x[1]),pct(x[1],total)]));chart('chObraDonut','doughnut',e.map(x=>x[0]),[{data:e.map(x=>x[1]),backgroundColor:STATE_COLORS}]);let provs=group(d,'prov').slice(0,10).map(x=>x[0]);let estados=[...new Set(d.map(r=>r.estado))];chart('chObraProv','bar',provs,estados.map((es,i)=>({label:es,data:provs.map(p=>sum(d.filter(r=>r.prov===p&&r.estado===es))),backgroundColor:STATE_COLORS[i%STATE_COLORS.length]})),{indexAxis:'y',scales:{x:{stacked:true},y:{stacked:true}},plugins:{valueLabels:false}});let noRows=group(d.filter(r=>norm(r.estado).includes('NO CONSTRUIDA')),'prov'), noCard=$('noConstruidas')?.closest('.card');if(noCard)noCard.classList.toggle('hide',!noRows.length);if(noRows.length)barList('noConstruidas',noRows);}
 function renderEconomico(d){let prices=d.map(r=>r.precio).filter(x=>x>0), val=d.reduce((a,r)=>a+r.precio*r.viv,0);$('kpiEcon').innerHTML=kpiHTML([['Precio Promedio',money(avg(d,'precio',true)),'Ponderado'],['Precio Mediano',money(median(prices)),'Por registro'],['Precio Máximo',money(Math.max(...prices,0)),''],['Área Promedio',avg(d,'area',true).toLocaleString('es-EC',{maximumFractionDigits:1})+' m²',''],['Monto Estimado',moneyMillions(val),'Millones USD: precio x viviendas']]);let bins=[0,30000,60000,90000,120000,150000,200000,300000];let counts=bins.slice(0,-1).map((b,i)=>prices.filter(x=>x>=b&&x<bins[i+1]).length);chart('chHistPrecio','bar',bins.slice(0,-1).map((b,i)=>`${fmt(b/1000)}k-${fmt(bins[i+1]/1000)}k`),[{label:'Registros',data:counts,backgroundColor:COLORS.blue}]);let provs=group(d,'prov').slice(0,10).map(x=>x[0]);chart('chPrecioProv','bar',provs,[{label:'Precio promedio',data:provs.map(p=>avg(d.filter(r=>r.prov===p),'precio',true)),backgroundColor:COLORS.blue}],{indexAxis:'y'});let sample=d.filter(r=>r.precio>0&&r.area>0&&r.area<300&&r.precio<250000).slice(0,1800).map(r=>({x:r.area,y:r.precio}));chart('chScatter','scatter',[''],[{label:'Registro',data:sample,backgroundColor:COLORS.blue}],{plugins:{valueLabels:false},scales:{x:{title:{display:true,text:'Área vivienda (m²)'}},y:{title:{display:true,text:'Precio (USD)'},ticks:{callback:v=>money(v)}}}});barList('valorProv',group(d,'prov').map(([p])=>[p,d.filter(r=>r.prov===p).reduce((a,r)=>a+r.precio*r.viv,0)]));}
