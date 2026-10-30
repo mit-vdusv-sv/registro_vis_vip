@@ -522,7 +522,7 @@ function downloadMonthlyReport(){
  const w=doc.internal.pageSize.getWidth(),h=doc.internal.pageSize.getHeight(),left=85,width=w-170;
  const chrome=()=>{doc.addImage(MONTHLY_HEADER,'PNG',0,0,w,93);doc.addImage(MONTHLY_FOOTER,'PNG',0,h-178,w,178);};
  chrome();let y=110;
- const text=(value,size=9,style='normal',align='left')=>{doc.setFont('helvetica',style);doc.setFontSize(size);const lines=doc.splitTextToSize(value,width);const height=lines.length*size*1.25;if(y+height>h-130){doc.addPage();chrome();y=100;}doc.text(lines,align==='center'?w/2:left,y,{align,lineHeightFactor:1.25});y+=height+9;};
+ const text=(value,size=9,style='normal',align='left')=>{doc.setFont('helvetica',style);doc.setFontSize(size);const lines=doc.splitTextToSize(value,width);const height=lines.length*size*1.25;if(y+height>h-190){doc.addPage();chrome();y=110;}doc.text(lines,align==='center'?w/2:left,y,{align,lineHeightFactor:1.25});y+=height+9;};
  doc.setTextColor(24,54,87);
  text('REPORTE MENSUAL DE CALIFICACIONES EMITIDAS DE VIVIENDA DE INTERÉS SOCIAL (VIS) Y REGISTROS EMITIDOS DE VIVIENDA DE INTERÉS PÚBLICO (VIP)',11,'bold','center');
  doc.setTextColor(30,30,30);
@@ -532,9 +532,10 @@ function downloadMonthlyReport(){
  const details=[];if(selectedProvinces().length)details.push('Provincias: '+selectedProvinces().join(', '));if($('fCan').value)details.push('Cantón: '+$('fCan').value);if($('fTipo').value)details.push('Tipo: '+$('fTipo').value);if($('fGob').value)details.push('Gobierno: '+$('fGob').value);if(details.length)text('Filtros: '+details.join(' · '),8);
  const names=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
  for(const year of [...new Set(result.months.map(m=>m.year))]){
- if(y+85>h-130){doc.addPage();chrome();y=100;}
+ const yearRows=result.months.filter(m=>m.year===year).length;
+ if(y+yearRows*14+85>h-190){doc.addPage();chrome();y=110;}
  text(String(year),9,'bold');
- doc.autoTable({startY:y-4,margin:{left,right:left,top:100,bottom:135},tableWidth:width,theme:'grid',head:[['Mes','Nro. Registros únicos emitidos','Nro. Viviendas calificadas y registradas']],body:result.months.filter(m=>m.year===year).map(m=>[names[m.month],fmt(m.codes.size),fmt(m.viv)]),styles:{font:'helvetica',fontSize:8,cellPadding:2,halign:'center',lineColor:[0,0,0],lineWidth:.4},headStyles:{fillColor:[24,54,87],textColor:255},columnStyles:{0:{cellWidth:width/3},1:{cellWidth:width/3},2:{cellWidth:width/3}},didDrawPage:chrome});
+ doc.autoTable({startY:y-4,margin:{left,right:left,top:110,bottom:190},tableWidth:width,pageBreak:'avoid',rowPageBreak:'avoid',theme:'grid',head:[['Mes','Nro. Registros únicos emitidos','Nro. Viviendas calificadas y registradas']],body:result.months.filter(m=>m.year===year).map(m=>[names[m.month],fmt(m.codes.size),fmt(m.viv)]),styles:{font:'helvetica',fontSize:8,cellPadding:2,halign:'center',lineColor:[0,0,0],lineWidth:.4},headStyles:{fillColor:[24,54,87],textColor:255},columnStyles:{0:{cellWidth:width/3},1:{cellWidth:width/3},2:{cellWidth:width/3}},willDrawPage:chrome});
  y=doc.lastAutoTable.finalY+10;text('Fuente: Matriz RP. Fecha final del período: '+dateLabel(result.end)+'.',8);y+=5;
  }
  text('Nota: La columna “Registros únicos emitidos” contabiliza una sola vez cada código de calificación de vivienda de interés social (VIS) o de registro de vivienda de interés público (VIP) dentro del mes de su fecha de registro. Por tanto, la cifra de registros únicos no necesariamente coincide con el número de proyectos inmobiliarios identificados por su nombre comercial.',8);
@@ -547,4 +548,5 @@ function downloadMonthlyReport(){
 </script>
 </body>
 </html>
+
 
